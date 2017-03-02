@@ -1,0 +1,53 @@
+# This script will create all the needed tables for the SIP project
+# Creates all the tables for the Sip Project Database
+# It requires the existence of a database named 'sip_project_db'
+# Run it using:
+#    mysql -u <user> -p < database_creator.mysql
+# user must have administrative permissions on sip_project_db
+
+use sip_project_db;
+
+drop table if exists Calls;
+drop table if exists BlockingList;
+drop table if exists Users;
+
+create table if not exists Users (
+    id bigint(20) not null auto_increment primary key,
+    username varchar(20) not null unique,
+    pass binary(64) not null,
+    salt binary(16) not null,
+    balance double not null,
+    rate int(10) not null,
+    forwards_to bigint(20),
+    online boolean,
+    foreign key (forwards_to) references Users(id),
+    unique index username_index (username)
+);
+
+create table if not exists BlockingList (
+    id bigint(20) not null auto_increment primary key,
+    blocker bigint(20) not null,
+    blocked bigint(20) not null,
+    foreign key (blocker) references Users(id),
+    foreign key (blocked) references Users(id),
+    index blocker_index (blocker),
+    unique index blocker_blocked_index (blocker, blocked)
+);
+
+create table if not exists Calls (
+    id bigint(20) not null auto_increment primary key,
+    caller bigint(20) not null,
+    callee bigint(20) not null,
+    start_time timestamp not null default current_timestamp,
+    end_time timestamp null,
+    charge double,
+    foreign key (caller) references Users(id),
+    foreign key (callee) references Users(id),
+    index caller_index (caller)
+);
+
+create view UsersV as
+select id, username, balance, rate, forwards_to, online
+from Users;
+
+

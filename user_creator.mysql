@@ -1,0 +1,11 @@
+# Creates a database 'sip_project_db' and a user named 'sip_user' with password 'sip'
+# Run it using:
+#    mysql -u root -p < user_creator.mysql
+
+drop database if exists sip_project_db;
+
+create database sip_project_db;
+create user sip_user identified by 'sip';
+grant all on sip_project_db.* to 'sip_user'
+
+
